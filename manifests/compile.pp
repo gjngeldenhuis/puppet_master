@@ -101,7 +101,6 @@ class puppet_master::compile (
   validate_bool($r10k_enabled)
   validate_array($dns_alt_names)
   validate_absolute_path($puppet_base)
-  validate_absolute_path($hiera_base)
 
   File {
     owner  => 'pe-puppet',
@@ -150,11 +149,11 @@ class puppet_master::compile (
 
   # managed r10k if desired
   if $r10k_enabled {
-    if ! ($puppet_remote and $hiera_remote) {
+    if ! ($puppet_remote) {
       fail("r10k requires a remote repo for puppet and hiera")
     }
     validate_absolute_path($puppet_base)
-    validate_absolute_path($hiera_base)
+#    validate_absolute_path($hiera_base)
     class { 'r10k':
       sources           => {
         'puppet' => {
@@ -162,11 +161,6 @@ class puppet_master::compile (
           'basedir' => $puppet_base,
           'prefix'  => false,
         },
-        'hiera'  => {
-          'remote'  => $hiera_remote,
-          'basedir' => $hiera_base,
-          'prefix'  => false
-        }
       },
       purgedirs         => [$puppet_base,$hiera_base],
       manage_modulepath => false,
